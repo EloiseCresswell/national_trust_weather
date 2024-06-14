@@ -2,6 +2,32 @@
 let todayWeather = [];
 let tomorrowWeather = [];
 let dayAfterWeather = [];
+let tomorrowClicked = false;
+let nextDayClicked = false;
+
+//creating a new li to go with the li's on the national trust's page
+// console.log(allWeather[0]);
+const listForWeather = document.createElement("li");
+listForWeather.className =
+  "AccordionItemstyle__AccordionItemWrapper-sc-zx14w3-1 gQSStJ Accordionstyle__StyledAccordionItem-sc-5agikf-0 hYFtIQ";
+listForWeather.id = "place-weather";
+//main overall div to contain the weather and the titles
+const mainDiv = document.createElement("div");
+mainDiv.className = "weather__holdingDiv";
+listForWeather.appendChild(mainDiv);
+//div to hold the titles (dates for the weather)
+const headerDiv = document.createElement("div");
+headerDiv.className = "weather__headerDiv";
+mainDiv.appendChild(headerDiv);
+//div to hold the results of the weather
+const resultsDiv = document.createElement("div");
+resultsDiv.className = "weather__resultsDiv";
+resultsDiv.id = "weather__resultsDiv";
+mainDiv.appendChild(resultsDiv);
+
+//addition of the headers to the headers div
+let htmlToAdd = `<button id="weather__todayButton">Today</button><button id="weather__tomorrowButton">Tomorrow</button><button id="weather__nextDayButton">Next day</button>`;
+headerDiv.innerHTML = htmlToAdd;
 
 //fetch request to get the weather ...
 async function weather() {
@@ -54,38 +80,13 @@ async function weather() {
   const newFilteredWeather = await filteredWeather(weatherFromAPI);
   //step 3: get the weather to display on the page
 
-  //creating a new li to go with the li's on the national trust's page
-  // console.log(allWeather[0]);
-  const listForWeather = document.createElement("li");
-  listForWeather.className =
-    "AccordionItemstyle__AccordionItemWrapper-sc-zx14w3-1 gQSStJ Accordionstyle__StyledAccordionItem-sc-5agikf-0 hYFtIQ";
-  listForWeather.id = "place-weather";
-  //main overall div to contain the weather and the titles
-  const mainDiv = document.createElement("div");
-  mainDiv.className = "weather__holdingDiv";
-  listForWeather.appendChild(mainDiv);
-  //div to hold the titles (dates for the weather)
-  const headerDiv = document.createElement("div");
-  headerDiv.className = "weather__headerDiv";
-  mainDiv.appendChild(headerDiv);
-  //div to hold the results of the weather
-  const resultsDiv = document.createElement("div");
-  resultsDiv.className = "weather__resultsDiv";
-  mainDiv.appendChild(resultsDiv);
-
-  //addition of the headers to the headers div
-  const todayHeader = document.createElement("h3");
-  todayHeader.className = "Typographystyle__HeadingLevel3";
-  todayHeader.textContent = "Today";
-  headerDiv.appendChild(todayHeader);
-  //   console.log(todayWeather);
-
-  async function displayTodayWeathers(allWeather) {
+  async function displayChosenWeathers(allWeather) {
     //addition of todays weather to the resultsDiv
     allWeather.forEach((element) => {
       //create a div to hold the weather for that given time
       const individualTimeDiv = document.createElement("div");
       individualTimeDiv.className = "weather__individualTime";
+      individualTimeDiv.id = "weather__individualTime";
       const todayTime = document.createElement("p");
       //determining the time
       let htmlToAdd = `<p>${element.dt_txt.slice(11, -3)}</p>`;
@@ -157,6 +158,40 @@ async function weather() {
     document.body.appendChild(listForWeather);
   }
 
-  const todayWeatherDisplay = await displayTodayWeathers(newFilteredWeather[0]);
+  const todayWeatherDisplay = await displayChosenWeathers(
+    newFilteredWeather[0]
+  );
+
+  //event listener to listen for tomorrow being clicked
+  document
+    .getElementById("weather__tomorrowButton")
+    .addEventListener("click", async function () {
+      const element = document.getElementById("weather__resultsDiv");
+      while (element.firstChild) {
+        element.removeChild(element.firstChild);
+      }
+      await displayChosenWeathers(newFilteredWeather[1]);
+    });
+  //add event listener for next day being clicked
+  document
+    .getElementById("weather__nextDayButton")
+    .addEventListener("click", async function () {
+      const element = document.getElementById("weather__resultsDiv");
+      while (element.firstChild) {
+        element.removeChild(element.firstChild);
+      }
+      await displayChosenWeathers(newFilteredWeather[2]);
+    });
+  //add event listener for today being clicked
+  document
+    .getElementById("weather__todayButton")
+    .addEventListener("click", async function () {
+      const element = document.getElementById("weather__resultsDiv");
+      while (element.firstChild) {
+        element.removeChild(element.firstChild);
+      }
+      await displayChosenWeathers(newFilteredWeather[0]);
+    });
 }
+
 weather();
