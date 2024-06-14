@@ -5,17 +5,39 @@ async function getWeather() {
   );
   const weather = await response.json();
   //finding weather for today
-  let todayWeather = {};
+  let todayWeather = [];
   let selectedWeather = [];
-  //for loop to go through the returned array and pick out the main pieces of information
+  //filtering the weather to only have the weather data for the times wanted
   selectedWeather = weather.list.filter(
     (weather) =>
-      Number(weather.dt_txt.slice(10, -6)) < 9 ||
-      Number(weather.dt_txt.slice(10, -6) > 18)
+      Number(weather.dt_txt.slice(10, -6)) >= 9 &&
+      Number(weather.dt_txt.slice(10, -6) <= 18)
   );
-  console.log(selectedWeather);
   //selectedWeather is the weather for times 9am - 6pm
-  //using selectedWeather, I now want to extract the main pieces of weather information that I want to show the user
+  //finding todays weather
+  const date = new Date().toJSON().slice(0, 10);
+  //   console.log(date);
+  todayWeather = selectedWeather.filter(
+    (weather) => weather.dt_txt.slice(0, 10) === date
+  );
+  //next days weather
+  const today = new Date(); // get today's date
+  let tomorrow = new Date(today);
+  //add another day onto today
+  tomorrow.setDate(today.getDate() + 1);
+  tomorrow = tomorrow.toJSON().slice(0, 10);
+  tomorrowWeather = selectedWeather.filter(
+    (weather) => weather.dt_txt.slice(0, 10) === tomorrow
+  );
+  console.log(tomorrowWeather);
+  //the day after's weather
+  let dayAfter = new Date(today);
+  dayAfter.setDate(today.getDate() + 2);
+  dayAfter = dayAfter.toJSON().slice(0, 10);
+  dayAfterWeather = selectedWeather.filter(
+    (weather) => weather.dt_txt.slice(0, 10) === dayAfter
+  );
+  console.log(dayAfterWeather);
 }
 
 getWeather();
