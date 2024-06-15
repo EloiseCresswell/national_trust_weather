@@ -26,7 +26,7 @@ resultsDiv.id = "weather__resultsDiv";
 mainDiv.appendChild(resultsDiv);
 
 //addition of the headers to the headers div
-let htmlToAdd = `<button id="weather__todayButton">Today</button><button id="weather__tomorrowButton">Tomorrow</button><button id="weather__nextDayButton">Next day</button>`;
+let htmlToAdd = `<div id="weather__buttonsDiv"> <button id="weather__todayButton">Today</button><button id="weather__tomorrowButton">Tomorrow</button><button id="weather__nextDayButton">Next day</button></div>`;
 headerDiv.innerHTML = htmlToAdd;
 
 //fetch request to get the weather ...
@@ -155,6 +155,15 @@ async function weather() {
     });
 
     // add the newly created element and its content into the DOM
+    //adding the weather alert if user clicks on today and the house is shut...
+    //taking length of all weather which is 0 if there is no weather / AKA house is shut...
+    if (allWeather.length === 0) {
+      const noWeatherDiv = document.createElement("div");
+      noWeatherDiv.className = "weather__individualTime";
+      noWeatherDiv.id = "weather__noWeatherAlert";
+      resultsDiv.appendChild(noWeatherDiv);
+      noWeatherDiv.innerHTML = `<p>No weather for today as the house is shut, check tomorrow's weather!</p>`;
+    }
     document.body.appendChild(listForWeather);
   }
 
