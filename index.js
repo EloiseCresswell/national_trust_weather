@@ -5,6 +5,18 @@ let dayAfterWeather = [];
 let tomorrowClicked = false;
 let nextDayClicked = false;
 
+//getting the lat and long for the weather based off of the map's lat and long
+let ahref = document.getElementById("propertyViewOnGoogleMaps_image");
+// console.log(ahref.href);
+// console.log(ahref.href.indexOf("destination="));
+const latlongindex = ahref.href.indexOf("destination=");
+let allLatLng = ahref.href.slice(latlongindex + 12);
+let divideLatLong = allLatLng.indexOf("%");
+let latitude = allLatLng.slice(0, divideLatLong);
+let longitude = allLatLng.slice(divideLatLong + 3);
+// console.log(latitude);
+// console.log(longitude);
+
 //creating a new li to go with the li's on the national trust's page
 // console.log(allWeather[0]);
 const listForWeather = document.createElement("li");
@@ -33,7 +45,7 @@ headerDiv.innerHTML = htmlToAdd;
 async function weather() {
   async function getWeather() {
     const response = await fetch(
-      "https://europe-west1-amigo-actions.cloudfunctions.net/recruitment-mock-weather-endpoint/forecast?appid=a2ef86c41a&lat=27.987850&lon=86.925026"
+      `https://europe-west1-amigo-actions.cloudfunctions.net/recruitment-mock-weather-endpoint/forecast?appid=a2ef86c41a&lat=${latitude}&lon=${longitude}`
     );
     const weather = await response.json();
     return weather;
