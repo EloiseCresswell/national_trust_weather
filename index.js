@@ -5,6 +5,18 @@ let dayAfterWeather = [];
 let tomorrowClicked = false;
 let nextDayClicked = false;
 
+//getting the lat and long for the weather based off of the map's lat and long
+let ahref = document.getElementById("propertyViewOnGoogleMaps_image");
+// console.log(ahref.href);
+// console.log(ahref.href.indexOf("destination="));
+const latlongindex = ahref.href.indexOf("destination=");
+let allLatLng = ahref.href.slice(latlongindex + 12);
+let divideLatLong = allLatLng.indexOf("%");
+let latitude = allLatLng.slice(0, divideLatLong);
+let longitude = allLatLng.slice(divideLatLong + 3);
+// console.log(latitude);
+// console.log(longitude);
+
 //creating a new li to go with the li's on the national trust's page
 // console.log(allWeather[0]);
 const listForWeather = document.createElement("li");
@@ -33,19 +45,26 @@ headerDiv.innerHTML = htmlToAdd;
 async function weather() {
   async function getWeather() {
     const response = await fetch(
-      "https://europe-west1-amigo-actions.cloudfunctions.net/recruitment-mock-weather-endpoint/forecast?appid=a2ef86c41a&lat=27.987850&lon=86.925026"
+      `https://europe-west1-amigo-actions.cloudfunctions.net/recruitment-mock-weather-endpoint/forecast?appid=a2ef86c41a&lat=${latitude}&lon=${longitude}`
     );
     const weather = await response.json();
+    // Save data to sessionStorage
+    sessionStorage.setItem("weather", JSON.stringify(weather.list));
     return weather;
   }
 
-  const weatherFromAPI = await getWeather();
-  //finding weather for today
+  // Get saved data from sessionStorage
+  let weatherData = JSON.parse(sessionStorage.getItem("weather"));
+  console.log(weatherData);
 
+  //caaling the get weather function
+  const weatherFromAPI = await getWeather();
+
+  //finding weather for each of the days
   async function filteredWeather(weather) {
     let selectedWeather = [];
     //filtering the weather to only have the weather data for the times wanted
-    selectedWeather = weather.list.filter(
+    selectedWeather = weather.filter(
       (weather) =>
         Number(weather.dt_txt.slice(10, -6)) >= 9 &&
         Number(weather.dt_txt.slice(10, -6) <= 18)
@@ -77,7 +96,7 @@ async function weather() {
     return [todayWeather, tomorrowWeather, dayAfterWeather];
     //console.log(dayAfterWeather);
   }
-  const newFilteredWeather = await filteredWeather(weatherFromAPI);
+  const newFilteredWeather = await filteredWeather(weatherData);
   //step 3: get the weather to display on the page
 
   async function displayChosenWeathers(allWeather) {
@@ -204,3 +223,10 @@ async function weather() {
 }
 
 weather();
+
+//how to style
+let css = " #weather__todayButton { background: red; }";
+let head = document.head || document.getElementsByTagName("head")[0];
+let style = document.createElement("style");
+
+head.appendChild(style);
