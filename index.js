@@ -48,16 +48,23 @@ async function weather() {
       `https://europe-west1-amigo-actions.cloudfunctions.net/recruitment-mock-weather-endpoint/forecast?appid=a2ef86c41a&lat=${latitude}&lon=${longitude}`
     );
     const weather = await response.json();
+    // Save data to sessionStorage
+    sessionStorage.setItem("weather", JSON.stringify(weather.list));
     return weather;
   }
 
-  const weatherFromAPI = await getWeather();
-  //finding weather for today
+  // Get saved data from sessionStorage
+  let weatherData = JSON.parse(sessionStorage.getItem("weather"));
+  console.log(weatherData);
 
+  //caaling the get weather function
+  const weatherFromAPI = await getWeather();
+
+  //finding weather for each of the days
   async function filteredWeather(weather) {
     let selectedWeather = [];
     //filtering the weather to only have the weather data for the times wanted
-    selectedWeather = weather.list.filter(
+    selectedWeather = weather.filter(
       (weather) =>
         Number(weather.dt_txt.slice(10, -6)) >= 9 &&
         Number(weather.dt_txt.slice(10, -6) <= 18)
@@ -89,7 +96,7 @@ async function weather() {
     return [todayWeather, tomorrowWeather, dayAfterWeather];
     //console.log(dayAfterWeather);
   }
-  const newFilteredWeather = await filteredWeather(weatherFromAPI);
+  const newFilteredWeather = await filteredWeather(weatherData);
   //step 3: get the weather to display on the page
 
   async function displayChosenWeathers(allWeather) {
@@ -216,3 +223,10 @@ async function weather() {
 }
 
 weather();
+
+//how to style
+let css = " #weather__todayButton { background: red; }";
+let head = document.head || document.getElementsByTagName("head")[0];
+let style = document.createElement("style");
+
+head.appendChild(style);
