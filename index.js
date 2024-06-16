@@ -13,12 +13,10 @@ let longitude = allLatLng.slice(divideLatLong + 3);
 //creating a new li to go with the li's on the national trust's page
 // console.log(allWeather[0]);
 const listForWeather = document.createElement("li");
-listForWeather.className =
-  "AccordionItemstyle__AccordionItemWrapper-sc-zx14w3-1 gQSStJ Accordionstyle__StyledAccordionItem-sc-5agikf-0 hYFtIQ";
 listForWeather.id = "place-weather";
 //main overall div to contain the weather and the titles
 const mainDiv = document.createElement("div");
-mainDiv.className = "weather__holdingDiv";
+mainDiv.className = 'weather__holdingDiv aria-hidden="true"';
 listForWeather.appendChild(mainDiv);
 //div to hold the titles (dates for the weather)
 const headerDiv = document.createElement("div");
@@ -28,11 +26,44 @@ mainDiv.appendChild(headerDiv);
 const resultsDiv = document.createElement("div");
 resultsDiv.className = "weather__resultsDiv";
 resultsDiv.id = "weather__resultsDiv";
+resultsDiv.style.setProperty("display", "flex");
+resultsDiv.style.setProperty("justify-content", "space-around");
 mainDiv.appendChild(resultsDiv);
 
-//addition of the headers to the headers div
-let htmlToAdd = `<div id="weather__buttonsDiv"> <button id="weather__todayButton">Today</button><button id="weather__tomorrowButton">Tomorrow</button><button id="weather__nextDayButton">Next day</button></div>`;
-headerDiv.innerHTML = htmlToAdd;
+//accessing the list used to show the visitor information
+let ul = document.getElementsByClassName(
+  "Accordionstyle__StyledAccordionsList-sc-5agikf-2"
+);
+//cloning place-contact
+let lastList = document.getElementById("place-contact");
+let clonedLast = lastList.cloneNode(true);
+clonedLast.querySelector("span").textContent = "Weather";
+ul[0].appendChild(clonedLast);
+clonedLast.appendChild(listForWeather);
+clonedLast.style.setProperty(
+  "border-bottom",
+  "0.0625rem solid rgb(31, 31, 31);"
+);
+
+clonedLast.addEventListener("click", function () {
+  console.log("clicking clones");
+  let showingDiv = document.getElementById("place-weather");
+  console.log(showingDiv);
+  // Check the visibility using style property
+  if (showingDiv.style.visibility === "visible") {
+    // Update styles using style property
+    showingDiv.style.setProperty("max-height", "0px");
+    showingDiv.style.removeProperty("min-height", "100%");
+    showingDiv.style.visibility = "hidden";
+  } else {
+    // Update styles using style property
+    showingDiv.style.setProperty("min-height", "100%");
+    showingDiv.style.removeProperty("max-height", "0px");
+    showingDiv.style.visibility = "visible";
+  }
+
+  weather();
+});
 
 //fetch request to get the weather from the API
 async function getWeather() {
@@ -56,6 +87,13 @@ async function getWeather() {
     document.body.innerHTML = htmlFailRequest;
   }
 }
+//calling the get weather function
+const weatherFromAPI = await getWeather();
+// Save weather from API to sessionStorage
+sessionStorage.setItem("weather", JSON.stringify(weatherFromAPI.list));
+// Get saved data from sessionStorage - which is stored when get weather is run
+let weatherData = JSON.parse(sessionStorage.getItem("weather"));
+
 //finding weather for each of the days
 async function filteredWeather(weather) {
   console.log(weather);
@@ -99,7 +137,11 @@ async function filteredWeather(weather) {
 }
 //function to show the weather for the given day
 async function displayChosenWeathers(allWeather) {
+  console.log("results", resultsDiv);
+
+  resultsDiv.innerHTML = "";
   //addition of todays weather to the resultsDiv
+  let htmlToAdd = "";
   allWeather.forEach((element) => {
     //create a div to hold the weather for that given time
     const individualTimeDiv = document.createElement("div");
@@ -107,7 +149,7 @@ async function displayChosenWeathers(allWeather) {
     individualTimeDiv.id = "weather__individualTime";
     const todayTime = document.createElement("p");
     //determining the time
-    let htmlToAdd = `<p>${element.dt_txt.slice(11, -3)}</p>`;
+    htmlToAdd = `<p>${element.dt_txt.slice(11, -3)}</p>`;
     //determining the weather icon
     // console.log(element.weather[0].icon);
     if (element.weather[0].icon === "01d") {
@@ -164,6 +206,8 @@ async function displayChosenWeathers(allWeather) {
     }
     //determing the weather description
     htmlToAdd += `<p>${element.weather[0].description}</p>`;
+    //temperature
+    htmlToAdd += `<p>${Math.floor(element.main.temp)} &#8451</p>`;
     //rain amount
     htmlToAdd += `<p>${element.rain["3h"]} mm</p>`;
     //wind
@@ -182,57 +226,60 @@ async function displayChosenWeathers(allWeather) {
     resultsDiv.appendChild(noWeatherDiv);
     noWeatherDiv.innerHTML = `<p>No weather for today as the house is shut, check tomorrow's weather!</p>`;
   }
-  document.body.appendChild(listForWeather);
 }
 
 async function weather() {
-  //calling the get weather function
-  const weatherFromAPI = await getWeather();
-  // Save weather from API to sessionStorage
-  sessionStorage.setItem("weather", JSON.stringify(weatherFromAPI.list));
-  // Get saved data from sessionStorage - which is stored when get weather is run
-  let weatherData = JSON.parse(sessionStorage.getItem("weather"));
+  //addition of the headers to the headers div - this will show the buttons for today, tomorrow etc when user clicked on the down arrow
+  let htmlToAdd = `<div id="weather__buttonsDiv"> <button id="weather__todayButton">Today</button><button id="weather__tomorrowButton">Tomorrow</button><button id="weather__nextDayButton">Next day</button></div>`;
+  headerDiv.innerHTML = htmlToAdd;
+  let buttonsDivToStyle = document.getElementById("weather__buttonsDiv");
+  buttonsDivToStyle.style.cssText = "display: flex; gap: 30px; margin: 15px";
 
   const newFilteredWeather = await filteredWeather(weatherData);
-  //step 3: get the weather to display on the page
 
   await displayChosenWeathers(newFilteredWeather[0]);
 
   //event listener to listen for tomorrow being clicked
   document
     .getElementById("weather__tomorrowButton")
-    .addEventListener("click", async function () {
+    .addEventListener("click", async function (e) {
+      e.stopPropagation();
+      console.log("clicking");
+
       const element = document.getElementById("weather__resultsDiv");
-      while (element.firstChild) {
-        element.removeChild(element.firstChild);
-      }
+      console.log(element);
+      element.innerHTML = "";
       await displayChosenWeathers(newFilteredWeather[1]);
     });
   //add event listener for next day being clicked
   document
     .getElementById("weather__nextDayButton")
-    .addEventListener("click", async function () {
+    .addEventListener("click", async function (e) {
+      e.stopPropagation();
+
+      console.log("clicking");
+
       const element = document.getElementById("weather__resultsDiv");
-      while (element.firstChild) {
-        element.removeChild(element.firstChild);
-      }
+      console.log(element);
+      element.innerHTML = "";
       await displayChosenWeathers(newFilteredWeather[2]);
     });
   //add event listener for today being clicked
   document
     .getElementById("weather__todayButton")
-    .addEventListener("click", async function () {
+    .addEventListener("click", async function (e) {
+      e.stopPropagation();
+
+      console.log("clicking");
       const element = document.getElementById("weather__resultsDiv");
-      while (element.firstChild) {
-        element.removeChild(element.firstChild);
-      }
+      console.log(element);
+      element.innerHTML = "";
       await displayChosenWeathers(newFilteredWeather[0]);
     });
 }
-weather();
 
 //how to style
-let css = " #weather__todayButton { background: red; }";
+let css = " #weather__resultsDiv { display: flex; }";
 let head = document.head || document.getElementsByTagName("head")[0];
 let style = document.createElement("style");
 
