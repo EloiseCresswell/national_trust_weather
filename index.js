@@ -14,6 +14,7 @@ let longitude = allLatLng.slice(divideLatLong + 3);
 // console.log(allWeather[0]);
 const listForWeather = document.createElement("li");
 listForWeather.id = "place-weather";
+listForWeather.style.setProperty("overflow", "hidden");
 //main overall div to contain the weather and the titles
 const mainDiv = document.createElement("div");
 mainDiv.className = 'weather__holdingDiv aria-hidden="true"';
@@ -147,6 +148,7 @@ async function displayChosenWeathers(allWeather) {
     const individualTimeDiv = document.createElement("div");
     individualTimeDiv.className = "weather__individualTime";
     individualTimeDiv.id = "weather__individualTime";
+    individualTimeDiv.style.cssText = "text-align:center";
     const todayTime = document.createElement("p");
     //determining the time
     htmlToAdd = `<p>${element.dt_txt.slice(11, -3)}</p>`;
@@ -230,10 +232,16 @@ async function displayChosenWeathers(allWeather) {
 
 async function weather() {
   //addition of the headers to the headers div - this will show the buttons for today, tomorrow etc when user clicked on the down arrow
-  let htmlToAdd = `<div id="weather__buttonsDiv"> <button id="weather__todayButton">Today</button><button id="weather__tomorrowButton">Tomorrow</button><button id="weather__nextDayButton">Next day</button></div>`;
+  let htmlToAdd = `<div id="weather__buttonsDiv"> <button class = "weather__button Tabstyle__Label-sc-lxbacx-0 dXllGp" id="weather__todayButton">Today</button><button class = "weather__button Tabstyle__Label-sc-lxbacx-0 dXllGp" id="weather__tomorrowButton">Tomorrow</button><button class = "weather__button Tabstyle__Label-sc-lxbacx-0 dXllGp" id="weather__nextDayButton">Next day</button></div>`;
   headerDiv.innerHTML = htmlToAdd;
+  //styling of the buttons and the div for the buttons
   let buttonsDivToStyle = document.getElementById("weather__buttonsDiv");
-  buttonsDivToStyle.style.cssText = "display: flex; gap: 30px; margin: 15px";
+  buttonsDivToStyle.style = "display: flex; gap: 30px; margin: 15px";
+  let buttonsToStyle = document.getElementsByClassName("weather__button");
+  [...buttonsToStyle].forEach((element) => {
+    element.style =
+      "border: 0; border-bottom: 5px solid #007A3B; width: 100px; background: transparent";
+  });
 
   const newFilteredWeather = await filteredWeather(weatherData);
 
