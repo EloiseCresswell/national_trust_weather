@@ -1,28 +1,27 @@
 //getting the lat and long for the weather based off of the map's lat and long
 let ahref = document.getElementById("propertyViewOnGoogleMaps_image");
-// console.log(ahref.href);
-// console.log(ahref.href.indexOf("destination="));
+
 const latlongindex = ahref.href.indexOf("destination=");
 let allLatLng = ahref.href.slice(latlongindex + 12);
 let divideLatLong = allLatLng.indexOf("%");
 let latitude = allLatLng.slice(0, divideLatLong);
 let longitude = allLatLng.slice(divideLatLong + 3);
-// console.log(latitude);
-// console.log(longitude);
 
 //creating a new li to go with the li's on the national trust's page
-// console.log(allWeather[0]);
 const listForWeather = document.createElement("li");
 listForWeather.id = "place-weather";
 listForWeather.style.setProperty("overflow", "hidden");
+
 //main overall div to contain the weather and the titles
 const mainDiv = document.createElement("div");
 mainDiv.className = 'weather__holdingDiv aria-hidden="true"';
 listForWeather.appendChild(mainDiv);
+
 //div to hold the titles (dates for the weather)
 const headerDiv = document.createElement("div");
 headerDiv.className = "weather__headerDiv";
 mainDiv.appendChild(headerDiv);
+
 //div to hold the results of the weather
 const resultsDiv = document.createElement("div");
 resultsDiv.className = "weather__resultsDiv";
@@ -46,10 +45,9 @@ clonedLast.style.setProperty(
   "0.0625rem solid rgb(31, 31, 31);"
 );
 
+//listening to see if the weather drop down is clicked
 clonedLast.addEventListener("click", function () {
-  console.log("clicking clones");
   let showingDiv = document.getElementById("place-weather");
-  console.log(showingDiv);
   // Check the visibility using style property
   if (showingDiv.style.visibility === "visible") {
     // Update styles using style property
@@ -62,7 +60,7 @@ clonedLast.addEventListener("click", function () {
     showingDiv.style.removeProperty("max-height", "0px");
     showingDiv.style.visibility = "visible";
   }
-
+  //calling the weather function to show the weather if the function is clicked
   weather();
 });
 
@@ -97,7 +95,6 @@ let weatherData = JSON.parse(sessionStorage.getItem("weather"));
 
 //finding weather for each of the days
 async function filteredWeather(weather) {
-  console.log(weather);
   let selectedWeather = [];
   let todayWeather = [];
   let tomorrowWeather = [];
@@ -111,7 +108,6 @@ async function filteredWeather(weather) {
   //selectedWeather is the weather for times 9am - 6pm
   //finding todays weather
   const date = new Date().toJSON().slice(0, 10);
-  //   console.log(date);
   todayWeather = selectedWeather.filter(
     (weather) => weather.dt_txt.slice(0, 10) === date
   );
@@ -124,7 +120,6 @@ async function filteredWeather(weather) {
   tomorrowWeather = selectedWeather.filter(
     (weather) => weather.dt_txt.slice(0, 10) === tomorrow
   );
-  //console.log(tomorrowWeather);
   //the day after's weather
   let dayAfter = new Date(today);
   dayAfter.setDate(today.getDate() + 2);
@@ -132,14 +127,10 @@ async function filteredWeather(weather) {
   dayAfterWeather = selectedWeather.filter(
     (weather) => weather.dt_txt.slice(0, 10) === dayAfter
   );
-  console.log([todayWeather, tomorrowWeather, dayAfterWeather]);
   return [todayWeather, tomorrowWeather, dayAfterWeather];
-  //console.log(dayAfterWeather);
 }
 //function to show the weather for the given day
 async function displayChosenWeathers(allWeather) {
-  console.log("results", resultsDiv);
-
   resultsDiv.innerHTML = "";
   //addition of todays weather to the resultsDiv
   let htmlToAdd = "";
@@ -153,7 +144,6 @@ async function displayChosenWeathers(allWeather) {
     //determining the time
     htmlToAdd = `<p>${element.dt_txt.slice(11, -3)}</p>`;
     //determining the weather icon
-    // console.log(element.weather[0].icon);
     if (element.weather[0].icon === "01d") {
       htmlToAdd += `
       <img
@@ -252,10 +242,7 @@ async function weather() {
     .getElementById("weather__tomorrowButton")
     .addEventListener("click", async function (e) {
       e.stopPropagation();
-      console.log("clicking");
-
       const element = document.getElementById("weather__resultsDiv");
-      console.log(element);
       element.innerHTML = "";
       await displayChosenWeathers(newFilteredWeather[1]);
     });
@@ -264,11 +251,7 @@ async function weather() {
     .getElementById("weather__nextDayButton")
     .addEventListener("click", async function (e) {
       e.stopPropagation();
-
-      console.log("clicking");
-
       const element = document.getElementById("weather__resultsDiv");
-      console.log(element);
       element.innerHTML = "";
       await displayChosenWeathers(newFilteredWeather[2]);
     });
@@ -277,18 +260,8 @@ async function weather() {
     .getElementById("weather__todayButton")
     .addEventListener("click", async function (e) {
       e.stopPropagation();
-
-      console.log("clicking");
       const element = document.getElementById("weather__resultsDiv");
-      console.log(element);
       element.innerHTML = "";
       await displayChosenWeathers(newFilteredWeather[0]);
     });
 }
-
-//how to style
-let css = " #weather__resultsDiv { display: flex; }";
-let head = document.head || document.getElementsByTagName("head")[0];
-let style = document.createElement("style");
-
-head.appendChild(style);
